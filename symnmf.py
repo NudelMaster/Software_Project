@@ -40,13 +40,14 @@ try:
         sys.exit(1)
 
     X = points.values.tolist()
-    W = sm.norm(X)
-    H = np.random.uniform(0, 2 * np.sqrt(m / k), (n, k))
+    # W = sm.norm(X)
+    # H = np.random.uniform(0, 2 * np.sqrt(m / k), (n, k))
 
     # TODO check Nova's python version
     match goal:
         case "symnmf":
-            res = sm.symnmf(H, W)
+            # res = sm.symnmf(H, W)
+            print("boo")
         case "sym":
             res = sm.sym(X)
         case "ddg":

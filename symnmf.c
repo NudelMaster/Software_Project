@@ -10,8 +10,12 @@
 #define err_symnmf { free_matrix(w_h, n); free_matrix(h_tr, k); free_matrix(h_htr, n); free_matrix(h_htr_h, n); free_matrix(next_h, n); return NULL; }
 #define err_main { free(shape); free_matrix(points, shape[0]); printf("%s", error_msg); return 1; }
 
+const double beta = 0.5;
+const double eps = 0.0001;
+const char *error_msg = "An Error Has Occurred\n";
+
 /*
-Helper functions that calculates and returns the squared Euclidean distance between point1 and point2.
+Helper function that calculates and returns the squared Euclidean distance between point1 and point2.
 
 Input:
     double *point1: an array representing a point in dimension dim

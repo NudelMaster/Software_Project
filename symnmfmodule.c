@@ -1,80 +1,134 @@
 #define PY_SSIZE_T_CLEAN
-/* TODO change this! */
 #include "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Headers/Python.h"
+/* TODO change this! */
+#include "symnmf.h"
+#include "matrix.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+
+double **decode_matrix(PyObject *p_matrix, int *shape) {
+    int i, j, n, k;
+    double **matrix;
+    PyObject *p_row = NULL;
+
+    n = PyObject_Length(p_matrix);
+    if (n <= 0) return NULL;
+
+    p_row = PyList_GetItem(p_matrix, 1);
+    if (p_row == NULL) return NULL;
+    k = PyObject_Length(p_row);
+    if (k <= 0) return NULL;
+
+    matrix = gen_matrix(n, k);
+
+    for (i = 0; i < n; i++) {
+        p_row = PyList_GetItem(p_matrix, i);
+        if (p_row == NULL) return NULL;
+        for (j = 0; j < k; j++) {
+            PyObject *p_item = PyList_GetItem(p_row, j);
+            matrix[i][j] = PyFloat_AsDouble(p_item);
+        }
+    }
+
+    shape[0] = n;
+    shape[1] = k;
+
+    return matrix;
+}
+
+PyObject *encode_matrix(double **matrix, int n, int k) {
+    int i, j;
+    PyObject *p_matrix = NULL;
+
+    p_matrix = PyList_New(n);
+    for (i = 0; i < n; i++) {
+        PyObject *p_row = PyList_New(n);
+        for (j = 0; j < k; j++) {
+            PyObject *p_value = Py_BuildValue("d", matrix[i][j]);
+            PyList_SetItem(p_row, j, p_value);
+        }
+        PyList_SetItem(p_matrix, i, p_row);
+    }
+
+    free_matrix(matrix, n);
+
+    return p_matrix;
+}
 
 static PyObject *SymNMFLib_SymNMF(PyObject *self, PyObject *args) {
     return NULL;
 }
 
 static PyObject *SymNMFLib_Sym(PyObject *self, PyObject *args) {
-    PyObject *p_points;
-
-    int iter;
-    double eps;
-    int size, dimension = 0;
-    double **points = NULL;
-    double **centroids = NULL;
-    int i, j;
-    int res;
+    PyObject *p_points = NULL, *p_res = NULL;
+    int n, k, *shape = NULL;
+    double **points = NULL, **res = NULL;
 
     if (!PyArg_ParseTuple(args, "O", &p_points)) return NULL;
 
-    size = PyObject_Length(p_points);
-    if (size < 0) return NULL;
+    shape = calloc(2, sizeof(int));
+    if (shape == NULL) return NULL;
 
-    points = calloc(size, sizeof(double *));
-    if (points == NULL) err_top
-        for (i = 0; i < size; i++) {
-            p_point = PyList_GetItem(p_points, i);
-            if (dimension == 0) dimension = PyObject_Length(p_point);
+    points = decode_matrix(p_points, shape);
+    n = shape[0], k = shape[1];
+    free(shape);
+    if (points == NULL) return NULL;
 
-            points[i] = calloc(dimension, sizeof(double));
+    res = sym(points, n, k);
+    free_matrix(points, n);
+    if (res == NULL) return NULL;
 
-            for (j = 0; j < dimension; j++) {
-                p_coord = PyList_GetItem(p_point, j);
-                points[i][j] = PyFloat_AsDouble(p_coord);
-            }
-        }
+    p_res = encode_matrix(res, n, n);
 
-    centroids = calloc(k, sizeof(double *));
-    if (centroids == NULL) err_top
-        for (i = 0; i < k; i++) {
-            centroids[i] = calloc(dimension, sizeof(double));
-            p_point = PyList_GetItem(p_centroids, i);
-            for (j = 0; j < dimension; j++) {
-                p_coord = PyList_GetItem(p_point, j);
-                centroids[i][j] = PyFloat_AsDouble(p_coord);
-            }
-        }
-
-    res = kmeans(points, size, &centroids, k, iter, eps, dimension);
-    if (res != 0) err_top
-
-                p_centroids = PyList_New(k);
-    for (i = 0; i < k; i++) {
-        p_point = PyList_New(dimension);
-        for (j = 0; j < dimension; j++) {
-            p_coord = Py_BuildValue("d", centroids[i][j]);
-            PyList_SetItem(p_point, j, p_coord);
-        }
-        PyList_SetItem(p_centroids, i, p_point);
-    }
-
-
-    free_memory(points, size, centroids, k);
-
-    return p_centroids;
+    return p_res;
 }
 
 static PyObject *SymNMFLib_DDG(PyObject *self, PyObject *args) {
-    return NULL;
+    PyObject *p_points = NULL, *p_res = NULL;
+    int n, k, *shape = NULL;
+    double **points = NULL, **res = NULL;
+
+    if (!PyArg_ParseTuple(args, "O", &p_points)) return NULL;
+
+    shape = calloc(2, sizeof(int));
+    if (shape == NULL) return NULL;
+
+    points = decode_matrix(p_points, shape);
+    n = shape[0], k = shape[1];
+    free(shape);
+    if (points == NULL) return NULL;
+
+    res = ddg(points, n, k);
+    free_matrix(points, n);
+    if (res == NULL) return NULL;
+
+    p_res = encode_matrix(res, n, n);
+
+    return p_res;
 }
 
 static PyObject *SymNMFLib_Norm(PyObject *self, PyObject *args) {
-    return NULL;
+    PyObject *p_points = NULL, *p_res = NULL;
+    int n, k, *shape = NULL;
+    double **points = NULL, **res = NULL;
+
+    if (!PyArg_ParseTuple(args, "O", &p_points)) return NULL;
+
+    shape = calloc(2, sizeof(int));
+    if (shape == NULL) return NULL;
+
+    points = decode_matrix(p_points, shape);
+    n = shape[0], k = shape[1];
+    free(shape);
+    if (points == NULL) return NULL;
+
+    res = norm(points, n, k);
+    free_matrix(points, n);
+    if (res == NULL) return NULL;
+
+    p_res = encode_matrix(res, n, n);
+
+    return p_res;
 }
 
 

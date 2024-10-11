@@ -1,10 +1,6 @@
 #ifndef HW_FINAL_SYMNMF_H
 #define HW_FINAL_SYMNMF_H
 
-double beta = 0.5;
-double eps = 0.0001;
-char *error_msg = "An Error Has Occurred\n";
-
 /*
 Calculates and returns the similarity matrix.
 
