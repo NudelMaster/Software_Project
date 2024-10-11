@@ -8,7 +8,7 @@
 #define err_ddg { free_matrix(a, n); free_matrix(d, n); return NULL; }
 #define err_norm { free_matrix(a, n); free_matrix(d, n); free_matrix(tmp_w, n); free_matrix(w, n); return NULL; }
 #define err_symnmf { free_matrix(w_h, n); free_matrix(h_tr, k); free_matrix(h_htr, n); free_matrix(h_htr_h, n); free_matrix(next_h, n); return NULL; }
-#define err_main { free_matrix(points, size); free_matrix(res, size); printf("%s", error_msg); return 1; }
+#define err_main { free(shape); free_matrix(points, shape[0]); printf("%s", error_msg); return 1; }
 
 /*
 Helper functions that calculates and returns the squared Euclidean distance between point1 and point2.
@@ -123,76 +123,38 @@ double **symnmf(double **h, double **w, int n, int k) {
 
 int main(int argc, char *argv[]) {
     const char *goal, *file_name;
-    char *line = NULL;
-    FILE *fptr;
-    size_t len = 0;
-    ssize_t read;
-    int i, j, dimension = 1, size = 256;
+    int i, j, read_res, *shape = NULL;
     double **points = NULL, **res = NULL;
 
-    if (argc < 2) err_main
+    if (argc < 2) return 1;
 
     goal = argv[1];
     file_name = argv[2];
 
-    fptr = fopen(file_name, "r");
-    if (fptr == NULL) err_main
-
-    points = calloc(size, sizeof(double *));
-    if (points == NULL) err_main
-
-    read = getline(&line, &len, fptr);
-    if (read == -1) err_main
-
-    /* Checks how many "," are in a line. This will be the dimension of each point! */
-    for (i = 0; line[i]; i++) if (line[i] == ',') dimension++;
-
-    i = 0;
-    do {
-        char *line_ptr;
-
-        if (i >= size) {
-            double **tmp;
-            size *= 2;
-            tmp = realloc(points, size * sizeof(double *));
-            if (tmp == NULL) err_main
-            points = tmp;
-        }
-
-        points[i] = calloc(dimension, sizeof(double));
-        if (points[i] == NULL) err_main
-        line_ptr = line;
-        for (j = 0; j < dimension; j++) {
-            points[i][j] = strtod(line_ptr, &line_ptr);
-            /* Moves past the comma */
-            if (*line_ptr == ',') line_ptr++;
-        }
-        i++;
-    } while (getline(&line, &len, fptr) != -1);
-    size = i;
-    free(line);
-    fclose(fptr);
+    shape = calloc(2, sizeof(int));
+    read_res = read_matrix(file_name, &points, shape);
+    if (read_res == -1) err_main
 
     if (strcmp(goal, "sym") == 0) {
-        res = sym(points, size, dimension);
+        res = sym(points, shape[0], shape[1]);
     } else if (strcmp(goal, "ddg") == 0) {
-        res = ddg(points, size, dimension);
+        res = ddg(points, shape[0], shape[1]);
     } else if (strcmp(goal, "norm") == 0) {
-        res = norm(points, size, dimension);
+        res = norm(points, shape[0], shape[1]);
     }
 
     if (res == NULL) err_main
 
-    for (i = 0; i < size; i++) {
-        for (j = 0; j < size; j++) {
+    for (i = 0; i < shape[0]; i++) {
+        for (j = 0; j < shape[0]; j++) {
             printf("%.4f", res[i][j]);
-            if (j != size - 1) printf(",");
+            if (j != shape[0] - 1) printf(",");
         }
         printf("\n");
     }
 
-    free_matrix(points, size);
-    free_matrix(res, size);
+    free_matrix(points, shape[0]);
+    free_matrix(res, shape[0]);
 
     return 0;
 }

@@ -3,8 +3,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define err_read { free_matrix(points, size); free_matrix(res, size); return 1; }
-
 void free_matrix(double **mat, int n) {
     int i;
     if (mat == NULL) return;
@@ -12,48 +10,62 @@ void free_matrix(double **mat, int n) {
     free(mat);
 }
 
-int read_matrix(char *file_name, double ***mat_ptr, int *shape) {
+void realloc_matrix(double ***mat_ptr, int *size) {
+    double **tmp;
+    *size *= 2;
+    tmp = realloc(&mat_ptr, (*size) * sizeof(double *));
+    if (tmp == NULL) free_matrix(*mat_ptr, (*size) / 2);
+    *mat_ptr = tmp;
+}
+
+int read_line(char *line, double **mat_line_ptr, int dimension) {
+    char *line_ptr;
+    int i;
+
+    *mat_line_ptr = calloc(dimension, sizeof(double));
+    if (*mat_line_ptr == NULL) return -1;
+    line_ptr = line;
+    for (i = 0; i < dimension; i++) {
+        (*mat_line_ptr)[i] = strtod(line_ptr, &line_ptr);
+        if (*line_ptr == ',') line_ptr++;
+    }
+    return 0;
+}
+
+int read_matrix(const char *file_name, double ***mat_ptr, int *shape) {
     char *line = NULL;
     FILE *fptr;
     size_t len = 0;
     ssize_t read;
-    int i, j, size = 256, dimension = 1;
+    int i, size = 256, dimension = 1;
 
     fptr = fopen(file_name, "r");
-    if (fptr == NULL) return 1;
-
+    if (fptr == NULL) return -1;
     read = getline(&line, &len, fptr);
-    if (read == -1) return 1;
+    if (read == -1) return -1;
 
     /* Checks how many "," are in a line. This will be the dimension of each point! */
     for (i = 0; line[i]; i++) if (line[i] == ',') dimension++;
 
+    *mat_ptr = calloc(size, sizeof(double *));
+    if (*mat_ptr == NULL) return -1;
+
     i = 0;
     do {
-        char *line_ptr;
-
         if (i >= size) {
-            double **tmp;
-            size *= 2;
-            tmp = realloc(mat, size * sizeof(double *));
-            if (tmp == NULL) err_main
-                        points = tmp;
+            realloc_matrix(mat_ptr, &size);
+            if (*mat_ptr == NULL) return -1;
         }
-
-        points[i] = calloc(dimension, sizeof(double));
-        if (points[i] == NULL) err_main
-                    line_ptr = line;
-        for (j = 0; j < dimension; j++) {
-            points[i][j] = strtod(line_ptr, &line_ptr);
-            /* Moves past the comma */
-            if (*line_ptr == ',') line_ptr++;
+        if (read_line(line, &((*mat_ptr)[i]), dimension) == -1) {
+            free_matrix(*mat_ptr, size);
+            return -1;
         }
         i++;
     } while (getline(&line, &len, fptr) != -1);
-    size = i;
-    free(line);
     fclose(fptr);
 
+    shape[0] = i;
+    shape[1] = dimension;
     return 0;
 }
 

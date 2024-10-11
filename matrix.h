@@ -2,6 +2,16 @@
 #define HW_FINAL_MATRIX_H
 
 /*
+Reads from line and inputs into mat_line_ptr. Returns 0 if succeeded, 1 if failed.
+
+Input:
+    char *line: the string line to be read through
+    double **mat_line_ptr: a pointer to the row in the matrix to be filled
+    int dimension: number of coords in line
+*/
+int read_line(char *line, double **mat_line_ptr, int dimension);
+
+/*
 Reads matrix from file, where each cell is seperated by ",", and each line is seperated by "\n", updates it in mat_ptr,
 and puts its dimensions in sizes, such that shape[0] = rows, shape[1] = columns. Returns 0 if succeeded, 1 if failed.
 
@@ -10,7 +20,7 @@ Input:
     double ***mat_ptr: a pointer to the empty matrix
     int *shape: array that will contain shape of read matrix
 */
-int read_matrix(char *file_name, double ***mat_ptr, int *shape);
+int read_matrix(const char *file_name, double ***mat_ptr, int *shape);
 
 /*
 Frees dynamically allocated matrix from memory.
