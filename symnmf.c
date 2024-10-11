@@ -50,7 +50,7 @@ double **ddg(double **x, int n, int dim) {
 
     for (i = 0; i < n; ++i) {
         double sum = 0;
-        for (j = 0; j < dim; ++j) sum += a[i][j];
+        for (j = 0; j < n; ++j) sum += a[i][j];
         d[i][i] = sum;
     }
 

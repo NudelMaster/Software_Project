@@ -1,3 +1,5 @@
 matrix.o
 symnmf.o
 symnmf
+symnmf.cpython-311-darwin.so
+build

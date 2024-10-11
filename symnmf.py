@@ -39,20 +39,9 @@ try:
     if not (1 < k < n):
         sys.exit(1)
 
-    # A = np.fromfunction(
-    #     lambda i, j: (
-    #         np.exp(-(np.pow(np.linalg.norm(points.iloc[i] - points.iloc[j]), 2) / 2))
-    #         if i != j
-    #         else 0
-    #     ),
-    #     (n, n),
-    # )
-    #     D_inv_sqrt = np.diag([np.sum(A[i]) for i in range(n)])
-    # D = sm.ddg(X)
-
     X = points.values.tolist()
-    H = np.random.uniform(0, 2 * np.sqrt(m / k), (n, k))
     W = sm.norm(X)
+    H = np.random.uniform(0, 2 * np.sqrt(m / k), (n, k))
 
     # TODO check Nova's python version
     match goal:

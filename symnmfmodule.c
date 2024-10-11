@@ -10,7 +10,63 @@ static PyObject *SymNMFLib_SymNMF(PyObject *self, PyObject *args) {
 }
 
 static PyObject *SymNMFLib_Sym(PyObject *self, PyObject *args) {
-    return NULL;
+    PyObject *p_points;
+
+    int iter;
+    double eps;
+    int size, dimension = 0;
+    double **points = NULL;
+    double **centroids = NULL;
+    int i, j;
+    int res;
+
+    if (!PyArg_ParseTuple(args, "O", &p_points)) return NULL;
+
+    size = PyObject_Length(p_points);
+    if (size < 0) return NULL;
+
+    points = calloc(size, sizeof(double *));
+    if (points == NULL) err_top
+        for (i = 0; i < size; i++) {
+            p_point = PyList_GetItem(p_points, i);
+            if (dimension == 0) dimension = PyObject_Length(p_point);
+
+            points[i] = calloc(dimension, sizeof(double));
+
+            for (j = 0; j < dimension; j++) {
+                p_coord = PyList_GetItem(p_point, j);
+                points[i][j] = PyFloat_AsDouble(p_coord);
+            }
+        }
+
+    centroids = calloc(k, sizeof(double *));
+    if (centroids == NULL) err_top
+        for (i = 0; i < k; i++) {
+            centroids[i] = calloc(dimension, sizeof(double));
+            p_point = PyList_GetItem(p_centroids, i);
+            for (j = 0; j < dimension; j++) {
+                p_coord = PyList_GetItem(p_point, j);
+                centroids[i][j] = PyFloat_AsDouble(p_coord);
+            }
+        }
+
+    res = kmeans(points, size, &centroids, k, iter, eps, dimension);
+    if (res != 0) err_top
+
+                p_centroids = PyList_New(k);
+    for (i = 0; i < k; i++) {
+        p_point = PyList_New(dimension);
+        for (j = 0; j < dimension; j++) {
+            p_coord = Py_BuildValue("d", centroids[i][j]);
+            PyList_SetItem(p_point, j, p_coord);
+        }
+        PyList_SetItem(p_centroids, i, p_point);
+    }
+
+
+    free_memory(points, size, centroids, k);
+
+    return p_centroids;
 }
 
 static PyObject *SymNMFLib_DDG(PyObject *self, PyObject *args) {
