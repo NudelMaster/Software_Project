@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define symnmf_err { if (shape_h != NULL) free(shape_h); if (shape_w != NULL) free(shape_w); free_matrix(w, n); free_matrix(h, n); return NULL; }
+
 double **decode_matrix(PyObject *p_matrix, int *shape) {
     int i, j, n, k;
     double **matrix;
@@ -55,112 +57,69 @@ PyObject *encode_matrix(double **matrix, int n, int k) {
     return p_matrix;
 }
 
+PyObject *call_func_with_x(double **(*func)(double **, int, int), PyObject *args) {
+    PyObject *p_points = NULL, *p_res = NULL;
+    int n, k, *shape = NULL;
+    double **points = NULL, **res = NULL;
+
+    if (!PyArg_ParseTuple(args, "O", &p_points)) return NULL;
+
+    shape = calloc(2, sizeof(int));
+    if (shape == NULL) return NULL;
+
+    points = decode_matrix(p_points, shape);
+    n = shape[0], k = shape[1];
+    free(shape);
+    if (points == NULL) return NULL;
+
+    res = func(points, n, k);
+    free_matrix(points, n);
+    if (res == NULL) return NULL;
+
+    p_res = encode_matrix(res, n, n);
+
+    return p_res;
+}
+
 static PyObject *SymNMFLib_SymNMF(PyObject *self, PyObject *args) {
     PyObject *p_h = NULL, *p_w = NULL, *p_res = NULL;
-    int n, k, *shape_h = NULL, *shape_w = NULL;
+    int n = 0, k, *shape_h = NULL, *shape_w = NULL;
     double **h = NULL, **w = NULL, **res = NULL;
 
-    if (!PyArg_ParseTuple(args, "OO", &p_h, &p_w)) return NULL;
+    if (!PyArg_ParseTuple(args, "OO", &p_h, &p_w)) symnmf_err
 
     shape_h = calloc(2, sizeof(int));
     shape_w = calloc(2, sizeof(int));
-    if (shape_h == NULL || shape_w == NULL) {
-        free(shape_h);
-        free(shape_w);
-        return NULL;
-    }
+    if (shape_h == NULL || shape_w == NULL) symnmf_err
 
     h = decode_matrix(p_h, shape_h);
     n = shape_h[0], k = shape_h[1];
     w = decode_matrix(p_w, shape_w);
-    free(shape_h);
-    free(shape_w);
-    if (w == NULL || h == NULL) {
-        free_matrix(w, n);
-        free_matrix(h, n);
-        return NULL;
-    }
+    if (w == NULL || h == NULL) symnmf_err
 
     res = symnmf(h, w, n, k);
-    free_matrix(h, n);
-    free_matrix(w, n);
-    if (res == NULL) return NULL;
+    if (res == NULL) symnmf_err
 
     p_res = encode_matrix(res, n, k);
+
+    free(shape_h);
+    free(shape_w);
+    free_matrix(h, n);
+    free_matrix(w, n);
 
     return p_res;
 }
 
 static PyObject *SymNMFLib_Sym(PyObject *self, PyObject *args) {
-    PyObject *p_points = NULL, *p_res = NULL;
-    int n, k, *shape = NULL;
-    double **points = NULL, **res = NULL;
-
-    if (!PyArg_ParseTuple(args, "O", &p_points)) return NULL;
-
-    shape = calloc(2, sizeof(int));
-    if (shape == NULL) return NULL;
-
-    points = decode_matrix(p_points, shape);
-    n = shape[0], k = shape[1];
-    free(shape);
-    if (points == NULL) return NULL;
-
-    res = sym(points, n, k);
-    free_matrix(points, n);
-    if (res == NULL) return NULL;
-
-    p_res = encode_matrix(res, n, n);
-
-    return p_res;
+    return call_func_with_x(&sym, args);
 }
 
 static PyObject *SymNMFLib_DDG(PyObject *self, PyObject *args) {
-    PyObject *p_points = NULL, *p_res = NULL;
-    int n, k, *shape = NULL;
-    double **points = NULL, **res = NULL;
-
-    if (!PyArg_ParseTuple(args, "O", &p_points)) return NULL;
-
-    shape = calloc(2, sizeof(int));
-    if (shape == NULL) return NULL;
-
-    points = decode_matrix(p_points, shape);
-    n = shape[0], k = shape[1];
-    free(shape);
-    if (points == NULL) return NULL;
-
-    res = ddg(points, n, k);
-    free_matrix(points, n);
-    if (res == NULL) return NULL;
-
-    p_res = encode_matrix(res, n, n);
-
-    return p_res;
+    return call_func_with_x(&ddg, args);
 }
 
 static PyObject *SymNMFLib_Norm(PyObject *self, PyObject *args) {
-    PyObject *p_points = NULL, *p_res = NULL;
-    int n, k, *shape = NULL;
-    double **points = NULL, **res = NULL;
-
-    if (!PyArg_ParseTuple(args, "O", &p_points)) return NULL;
-
-    shape = calloc(2, sizeof(int));
-    if (shape == NULL) return NULL;
-
-    points = decode_matrix(p_points, shape);
-    n = shape[0], k = shape[1];
-    free(shape);
-    if (points == NULL) return NULL;
-
-    res = norm(points, n, k);
-    free_matrix(points, n);
-    if (res == NULL) return NULL;
-
-    p_res = encode_matrix(res, n, n);
-
-    return p_res;
+    return call_func_with_x(&norm, args);
 }
 
 

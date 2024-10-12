@@ -6,7 +6,7 @@
 void free_matrix(double **mat, int n) {
     int i;
     if (mat == NULL) return;
-    for (i = 0; i < n; ++i) free(mat[i]);
+    for (i = 0; i < n; ++i) if (mat[i] != NULL) free(mat[i]);
     free(mat);
 }
 
