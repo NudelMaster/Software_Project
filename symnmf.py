@@ -11,13 +11,6 @@ def parse_int(num):
         return 0
 
 
-def parse_float(num):
-    try:
-        return float(num)
-    except:
-        return -1
-
-
 np.random.seed(1234)
 
 error_msg = "An Error Has Occurred"
@@ -40,14 +33,14 @@ try:
         sys.exit(1)
 
     X = points.values.tolist()
-    # W = sm.norm(X)
-    # H = np.random.uniform(0, 2 * np.sqrt(m / k), (n, k))
 
     # TODO check Nova's python version
     match goal:
         case "symnmf":
-            # res = sm.symnmf(H, W)
-            print("boo")
+            W = sm.norm(X)
+            m = np.average(W)
+            H = np.random.uniform(0, 2 * np.sqrt(m / k), (n, k)).tolist()
+            res = sm.symnmf(H, W)
         case "sym":
             res = sm.sym(X)
         case "ddg":

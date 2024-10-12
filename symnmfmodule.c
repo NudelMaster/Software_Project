@@ -42,7 +42,7 @@ PyObject *encode_matrix(double **matrix, int n, int k) {
 
     p_matrix = PyList_New(n);
     for (i = 0; i < n; i++) {
-        PyObject *p_row = PyList_New(n);
+        PyObject *p_row = PyList_New(k);
         for (j = 0; j < k; j++) {
             PyObject *p_value = Py_BuildValue("d", matrix[i][j]);
             PyList_SetItem(p_row, j, p_value);
@@ -56,7 +56,39 @@ PyObject *encode_matrix(double **matrix, int n, int k) {
 }
 
 static PyObject *SymNMFLib_SymNMF(PyObject *self, PyObject *args) {
-    return NULL;
+    PyObject *p_h = NULL, *p_w = NULL, *p_res = NULL;
+    int n, k, *shape_h = NULL, *shape_w = NULL;
+    double **h = NULL, **w = NULL, **res = NULL;
+
+    if (!PyArg_ParseTuple(args, "OO", &p_h, &p_w)) return NULL;
+
+    shape_h = calloc(2, sizeof(int));
+    shape_w = calloc(2, sizeof(int));
+    if (shape_h == NULL || shape_w == NULL) {
+        free(shape_h);
+        free(shape_w);
+        return NULL;
+    }
+
+    h = decode_matrix(p_h, shape_h);
+    n = shape_h[0], k = shape_h[1];
+    w = decode_matrix(p_w, shape_w);
+    free(shape_h);
+    free(shape_w);
+    if (w == NULL || h == NULL) {
+        free_matrix(w, n);
+        free_matrix(h, n);
+        return NULL;
+    }
+
+    res = symnmf(h, w, n, k);
+    free_matrix(h, n);
+    free_matrix(w, n);
+    if (res == NULL) return NULL;
+
+    p_res = encode_matrix(res, n, k);
+
+    return p_res;
 }
 
 static PyObject *SymNMFLib_Sym(PyObject *self, PyObject *args) {
