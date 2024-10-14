@@ -1,5 +1,5 @@
 #define PY_SSIZE_T_CLEAN
-#include "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Headers/Python.h"
+#include "Python.h"
 /* TODO change this! */
 #include "symnmf.h"
 #include "matrix.h"

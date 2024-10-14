@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include "matrix.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,8 +36,7 @@ int read_line(char *line, double **mat_line_ptr, int dimension) {
 int read_matrix(const char *file_name, double ***mat_ptr, int *shape) {
     char *line = NULL;
     FILE *fptr;
-    size_t len = 0;
-    ssize_t read;
+    size_t len = 0, read;
     int i, size = 256, dimension = 1;
 
     fptr = fopen(file_name, "r");
