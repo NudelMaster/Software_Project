@@ -36,13 +36,12 @@ int read_line(char *line, double **mat_line_ptr, int dimension) {
 int read_matrix(const char *file_name, double ***mat_ptr, int *shape) {
     char *line = NULL;
     FILE *fptr;
-    size_t len = 0, read;
+    size_t len = 0;
     int i, size = 256, dimension = 1;
 
     fptr = fopen(file_name, "r");
     if (fptr == NULL) return -1;
-    read = getline(&line, &len, fptr);
-    if (read == -1) return -1;
+    if (getline(&line, &len, fptr) == -1) return -1;
 
     /* Checks how many "," are in a line. This will be the dimension of each point! */
     for (i = 0; line[i]; i++) if (line[i] == ',') dimension++;
