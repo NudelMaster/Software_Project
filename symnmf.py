@@ -34,21 +34,19 @@ try:
 
     X = points.values.tolist()
 
-    # TODO check Nova's python version
-    match goal:
-        case "symnmf":
-            W = sm.norm(X)
-            m = np.average(W)
-            H = np.random.uniform(0, 2 * np.sqrt(m / k), (n, k)).tolist()
-            res = sm.symnmf(H, W)
-        case "sym":
-            res = sm.sym(X)
-        case "ddg":
-            res = sm.ddg(X)
-        case "norm":
-            res = sm.norm(X)
-        case _:
-            res = []
+    if goal == "symnmf":
+        W = sm.norm(X)
+        m = np.average(W)
+        H = np.random.uniform(0, 2 * np.sqrt(m / k), (n, k)).tolist()
+        res = sm.symnmf(H, W)
+    elif goal == "sym":
+        res = sm.sym(X)
+    elif goal == "ddg":
+        res = sm.ddg(X)
+    elif goal == "norm":
+        res = sm.norm(X)
+    else:
+        res = []
 
     for line in res:
         print(",".join(["%.4f" % coord for coord in line]))
