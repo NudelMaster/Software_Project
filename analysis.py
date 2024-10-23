@@ -32,7 +32,7 @@ iter_num = 300
 epsilon = 0.0001
 
 
-def kmeans_clustering(k: int, path_to_file: str) -> np.typing.NDArray[int]:
+def kmeans_clustering(k: int, path_to_file: str) -> np.ndarray[int]:
     """
     Reads given file, runs kmeans algorithm on it and returns clustering array.
     :param k: The number of clusters.
@@ -74,7 +74,7 @@ def kmeans_clustering(k: int, path_to_file: str) -> np.typing.NDArray[int]:
     return np.array(clustering)
 
 
-def symnmf_clustering(k: int, path_to_file: str) -> np.typing.NDArray[int]:
+def symnmf_clustering(k: int, path_to_file: str) -> np.ndarray[int]:
     """
     Reads given file, runs symnmf algorithm from c on it and returns clustering array.
     :param k: The number of clusters.
