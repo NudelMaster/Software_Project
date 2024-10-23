@@ -5,7 +5,7 @@ import numpy as np
 import symnmf as sm
 
 
-def euclidean_distance(point1: [int], point2: [int]) -> float:
+def euclidean_distance(point1, point2):
     """
     Calculates Euclidean distance between two points.
     :param point1: A point in a certain dimension.
@@ -14,7 +14,7 @@ def euclidean_distance(point1: [int], point2: [int]) -> float:
     return sum((point1[d] - point2[d]) ** 2 for d in range(len(point1))) ** 0.5
 
 
-def parse_int(num: str) -> int:
+def parse_int(num):
     """
     Parses int from string, making sure it is a valid number.
     :param num: String containing a number.
@@ -32,7 +32,7 @@ iter_num = 300
 epsilon = 0.0001
 
 
-def kmeans_clustering(k: int, path_to_file: str) -> np.ndarray[int]:
+def kmeans_clustering(k, path_to_file):
     """
     Reads given file, runs kmeans algorithm on it and returns clustering array.
     :param k: The number of clusters.
@@ -74,7 +74,7 @@ def kmeans_clustering(k: int, path_to_file: str) -> np.ndarray[int]:
     return np.array(clustering)
 
 
-def symnmf_clustering(k: int, path_to_file: str) -> np.ndarray[int]:
+def symnmf_clustering(k, path_to_file):
     """
     Reads given file, runs symnmf algorithm from c on it and returns clustering array.
     :param k: The number of clusters.

@@ -4,7 +4,7 @@ import pandas as pd
 import symnmf as sm
 
 
-def parse_int(num: str) -> int:
+def parse_int(num):
     """
     Parses int from string, making sure it is a valid number.
     :param num: String containing a number.
