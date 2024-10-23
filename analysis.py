@@ -16,60 +16,55 @@ def parse_int(num):
         return 0
 
 
+np.random.seed(1234)
+
 error_msg = "An Error Has Occurred"
 iter_num = 300
 epsilon = 0.0001
 
 
-def kmeans(k, path_to_file):
+def kmeans_clustering(k, path_to_file):
     input_file = open(path_to_file, "r")
-    input_file.seek(0)
-
     centroids = [
         tuple(float(x) for x in input_file.readline().strip().split(","))
         for _ in range(k)
     ]
+    clustering = []
 
     for iter_i in range(int(iter_num)):
-        # clear previous clusters
+        # saves both clusters of points and clustering (indices)
         clusters = [[] for _ in range(k)]
-        # reset pointer for file reading
+        clustering = []
         input_file.seek(0)
         i = 0
         for line in input_file.readlines():
-            # iterate over each point and assign to the closest cluster
             point = tuple([float(x) for x in line.split(",")])
             distances = [euclidean_distance(point, centroids[i]) for i in range(k)]
             closest = min(range(k), key=lambda x: distances[x])
             clusters[closest].append(point)
+            clustering.append(closest)
             i += 1
 
-        # calculating new centroids for checking convergence
         new_centroids = [
             tuple(sum(coord) / len(cluster) for coord in zip(*cluster))
             for cluster in clusters
         ]
 
-        # if max convergence for all new centroids is less than epsilon then the condition applies for all
         if (
             max(euclidean_distance(centroids[i], new_centroids[i]) for i in range(k))
             < epsilon
         ):
-            centroids = new_centroids
             break
 
         centroids = new_centroids
 
     input_file.close()
 
-    for centroid in centroids:
-        print(",".join(["%.4f" % coord for coord in centroid]))
+    return np.array(clustering)
 
 
 def symnmf_clustering(k, path_to_file):
-    input_file = open(path_to_file, "r")
-
-    points = pd.read_csv(file_name, header=None)
+    points = pd.read_csv(path_to_file, header=None)
     n = len(points)
 
     X = points.values.tolist()
@@ -77,54 +72,23 @@ def symnmf_clustering(k, path_to_file):
     W = sm.norm(X)
     m = np.average(W)
     H = np.random.uniform(0, 2 * np.sqrt(m / k), (n, k)).tolist()
-    res = sm.symnmf(H, W)
+    res = np.array(sm.symnmf(H, W))
+
+    return np.argmax(np.array(res), axis=1)
 
 
 try:
     k = parse_int(sys.argv[1])
     file_name = sys.argv[2]
 
-    input_file = open(file_name, "r")
+    x = pd.read_csv(file_name, header=None)
 
-    centroids = [
-        tuple(float(x) for x in input_file.readline().strip().split(","))
-        for _ in range(k)
-    ]
+    symnmf_res = symnmf_clustering(k, file_name)
+    kmeans_res = kmeans_clustering(k, file_name)
 
-    for iter_i in range(int(iter_num)):
-        # clear previous clusters
-        clusters = [[] for _ in range(k)]
-        # reset pointer for file reading
-        input_file.seek(0)
-        i = 0
-        for line in input_file.readlines():
-            # iterate over each point and assign to the closest cluster
-            point = tuple([float(x) for x in line.split(",")])
-            distances = [euclidean_distance(point, centroids[i]) for i in range(k)]
-            closest = min(range(k), key=lambda x: distances[x])
-            clusters[closest].append(point)
-            i += 1
+    print("nmf: %.4f" % silhouette_score(x, symnmf_res))
+    print("nmf: %.4f" % silhouette_score(x, kmeans_res))
 
-        # calculating new centroids for checking convergence
-        new_centroids = [
-            tuple(sum(coord) / len(cluster) for coord in zip(*cluster))
-            for cluster in clusters
-        ]
-
-        # if max convergence for all new centroids is less than epsilon then the condition applies for all
-        if (
-            max(euclidean_distance(centroids[i], new_centroids[i]) for i in range(k))
-            < epsilon
-        ):
-            centroids = new_centroids
-            break
-
-        centroids = new_centroids
-
-    input_file.close()
-
-    for centroid in centroids:
-        print(",".join(["%.4f" % coord for coord in centroid]))
 
 except:
     print(error_msg)
