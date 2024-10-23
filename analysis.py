@@ -5,11 +5,20 @@ import numpy as np
 import symnmf as sm
 
 
-def euclidean_distance(point1, point2):
+def euclidean_distance(point1: [int], point2: [int]) -> float:
+    """
+    Calculates Euclidean distance between two points.
+    :param point1: A point in a certain dimension.
+    :param point2: A point in a certain dimension.
+    """
     return sum((point1[d] - point2[d]) ** 2 for d in range(len(point1))) ** 0.5
 
 
-def parse_int(num):
+def parse_int(num: str) -> int:
+    """
+    Parses int from string, making sure it is a valid number.
+    :param num: String containing a number.
+    """
     try:
         return int(float(num)) if int(float(num)) == float(num) else 0
     except:
@@ -23,7 +32,12 @@ iter_num = 300
 epsilon = 0.0001
 
 
-def kmeans_clustering(k, path_to_file):
+def kmeans_clustering(k: int, path_to_file: str) -> np.typing.NDArray[int]:
+    """
+    Reads given file, runs kmeans algorithm on it and returns clustering array.
+    :param k: The number of clusters.
+    :param path_to_file: The path to the txt file containing the points.
+    """
     input_file = open(path_to_file, "r")
     centroids = [
         tuple(float(x) for x in input_file.readline().strip().split(","))
@@ -49,21 +63,23 @@ def kmeans_clustering(k, path_to_file):
             tuple(sum(coord) / len(cluster) for coord in zip(*cluster))
             for cluster in clusters
         ]
-
         if (
             max(euclidean_distance(centroids[i], new_centroids[i]) for i in range(k))
             < epsilon
         ):
             break
-
         centroids = new_centroids
 
     input_file.close()
-
     return np.array(clustering)
 
 
-def symnmf_clustering(k, path_to_file):
+def symnmf_clustering(k: int, path_to_file: str) -> np.typing.NDArray[int]:
+    """
+    Reads given file, runs symnmf algorithm from c on it and returns clustering array.
+    :param k: The number of clusters.
+    :param path_to_file: The path to the txt file containing the points.
+    """
     points = pd.read_csv(path_to_file, header=None)
     n = len(points)
 
@@ -77,19 +93,20 @@ def symnmf_clustering(k, path_to_file):
     return np.argmax(np.array(res), axis=1)
 
 
-try:
-    k = parse_int(sys.argv[1])
-    file_name = sys.argv[2]
+if __name__ == "__main__":
+    """Runs both symnmf and kmeans and prints their silhouette scores."""
+    try:
+        k = parse_int(sys.argv[1])
+        file_name = sys.argv[2]
 
-    x = pd.read_csv(file_name, header=None)
+        x = pd.read_csv(file_name, header=None)
 
-    symnmf_res = symnmf_clustering(k, file_name)
-    kmeans_res = kmeans_clustering(k, file_name)
+        symnmf_res = symnmf_clustering(k, file_name)
+        kmeans_res = kmeans_clustering(k, file_name)
 
-    print("nmf: %.4f" % silhouette_score(x, symnmf_res))
-    print("nmf: %.4f" % silhouette_score(x, kmeans_res))
+        print("nmf: %.4f" % silhouette_score(x, symnmf_res))
+        print("kmeans: %.4f" % silhouette_score(x, kmeans_res))
 
-
-except:
-    print(error_msg)
-    sys.exit(1)
+    except:
+        print(error_msg)
+        sys.exit(1)

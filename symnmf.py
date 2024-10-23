@@ -4,7 +4,11 @@ import pandas as pd
 import symnmf as sm
 
 
-def parse_int(num):
+def parse_int(num: str) -> int:
+    """
+    Parses int from string, making sure it is a valid number.
+    :param num: String containing a number.
+    """
     try:
         return int(float(num)) if int(float(num)) == float(num) else 0
     except:
@@ -17,40 +21,42 @@ error_msg = "An Error Has Occurred"
 max_iter = 300
 eps = 0.0001
 
-if len(sys.argv) < 4:
-    print(error_msg)
-    sys.exit(1)
-
-try:
-    k = parse_int(sys.argv[1])
-    goal = sys.argv[2]
-    file_name = sys.argv[3]
-
-    points = pd.read_csv(file_name, header=None)
-    n = len(points)
-
-    if not (1 < k < n):
+if __name__ == "__main__":
+    """Receives k, goal, file_name, and returns the relevant result using logic implemented in c."""
+    if len(sys.argv) < 4:
+        print(error_msg)
         sys.exit(1)
 
-    X = points.values.tolist()
+    try:
+        k = parse_int(sys.argv[1])
+        goal = sys.argv[2]
+        file_name = sys.argv[3]
 
-    if goal == "symnmf":
-        W = sm.norm(X)
-        m = np.average(W)
-        H = np.random.uniform(0, 2 * np.sqrt(m / k), (n, k)).tolist()
-        res = sm.symnmf(H, W)
-    elif goal == "sym":
-        res = sm.sym(X)
-    elif goal == "ddg":
-        res = sm.ddg(X)
-    elif goal == "norm":
-        res = sm.norm(X)
-    else:
-        res = []
+        points = pd.read_csv(file_name, header=None)
+        n = len(points)
 
-    for line in res:
-        print(",".join(["%.4f" % coord for coord in line]))
+        if not (1 < k < n):
+            sys.exit(1)
 
-except:
-    print(error_msg)
-    sys.exit(1)
+        X = points.values.tolist()
+
+        if goal == "symnmf":
+            W = sm.norm(X)
+            m = np.average(W)
+            H = np.random.uniform(0, 2 * np.sqrt(m / k), (n, k)).tolist()
+            res = sm.symnmf(H, W)
+        elif goal == "sym":
+            res = sm.sym(X)
+        elif goal == "ddg":
+            res = sm.ddg(X)
+        elif goal == "norm":
+            res = sm.norm(X)
+        else:
+            res = []
+
+        for line in res:
+            print(",".join(["%.4f" % coord for coord in line]))
+
+    except:
+        print(error_msg)
+        sys.exit(1)
