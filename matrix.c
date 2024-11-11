@@ -41,11 +41,14 @@ int read_matrix(const char *file_name, double ***mat_ptr, int *shape) {
 
     fptr = fopen(file_name, "r");
     if (fptr == NULL) return -1;
-    if (getline(&line, &len, fptr) == -1) return -1;
+    if (getline(&line, &len, fptr) == -1) {
+        fclose(fptr);
+        free(line);
+        return -1;
+    }
 
     /* Checks how many "," are in a line. This will be the dimension of each point! */
     for (i = 0; line[i]; i++) if (line[i] == ',') dimension++;
-
     *mat_ptr = calloc(size, sizeof(double *));
     if (*mat_ptr == NULL) return -1;
 
@@ -61,6 +64,7 @@ int read_matrix(const char *file_name, double ***mat_ptr, int *shape) {
         }
         i++;
     } while (getline(&line, &len, fptr) != -1);
+    free(line);
     fclose(fptr);
 
     shape[0] = i;

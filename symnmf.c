@@ -73,8 +73,8 @@ double **norm(double **x, int n, int dim) {
     d = ddg(x, n, dim);
     if (d == NULL) err_norm
 
-    w = gen_matrix(n, n);
-    if (w == NULL) err_norm
+    /* w = gen_matrix(n, n);
+    if (w == NULL) err_norm */
 
     for (i = 0; i < n; ++i) if (d[i][i] > eps) d[i][i] = sqrt(1.0 / d[i][i]);
     tmp_w = mat_mult(d, a, n, n, n);
@@ -159,6 +159,7 @@ int main(int argc, char *argv[]) {
 
     free_matrix(points, shape[0]);
     free_matrix(res, shape[0]);
+    free(shape);
 
     return 0;
 }
