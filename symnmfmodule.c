@@ -7,6 +7,7 @@
 
 #define symnmf_err { if (shape_h != NULL) free(shape_h); if (shape_w != NULL) free(shape_w); free_matrix(w, n); free_matrix(h, n); return NULL; }
 
+/* Decodes PyObject matrix into c matrix. */
 double **decode_matrix(PyObject *p_matrix, int *shape) {
     int i, j, n, k;
     double **matrix;
@@ -37,6 +38,7 @@ double **decode_matrix(PyObject *p_matrix, int *shape) {
     return matrix;
 }
 
+/* Encodes c matrix into PyObject. */
 PyObject *encode_matrix(double **matrix, int n, int k) {
     int i, j;
     PyObject *p_matrix = NULL;
@@ -56,6 +58,7 @@ PyObject *encode_matrix(double **matrix, int n, int k) {
     return p_matrix;
 }
 
+/* Calls method from symnmf.c with X matrix. */
 PyObject *call_func_with_x(double **(*func)(double **, int, int), PyObject *args) {
     PyObject *p_points = NULL, *p_res = NULL;
     int n, k, *shape = NULL;
@@ -80,6 +83,7 @@ PyObject *call_func_with_x(double **(*func)(double **, int, int), PyObject *args
     return p_res;
 }
 
+/* Method for symnmf. */
 static PyObject *SymNMFLib_SymNMF(PyObject *self, PyObject *args) {
     PyObject *p_h = NULL, *p_w = NULL, *p_res = NULL;
     int n = 0, k, *shape_h = NULL, *shape_w = NULL;
@@ -109,18 +113,20 @@ static PyObject *SymNMFLib_SymNMF(PyObject *self, PyObject *args) {
     return p_res;
 }
 
+/* Method for sym. */
 static PyObject *SymNMFLib_Sym(PyObject *self, PyObject *args) {
     return call_func_with_x(&sym, args);
 }
 
+/* Method for ddg. */
 static PyObject *SymNMFLib_DDG(PyObject *self, PyObject *args) {
     return call_func_with_x(&ddg, args);
 }
 
+/* Method for norm. */
 static PyObject *SymNMFLib_Norm(PyObject *self, PyObject *args) {
     return call_func_with_x(&norm, args);
 }
-
 
 static PyMethodDef SymNMFLib_FunctionsTable[] = {
     {
