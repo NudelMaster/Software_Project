@@ -1,6 +1,5 @@
 #define PY_SSIZE_T_CLEAN
-#include "/usr/include/python3.9/Python.h"
-/* TODO change this! */
+#include "Python.h"
 #include "symnmf.h"
 #include "matrix.h"
 #include <stdio.h>
