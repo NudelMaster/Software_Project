@@ -14,14 +14,6 @@ const double beta = 0.5;
 const double eps = 0.0001;
 const char *error_msg = "An Error Has Occurred\n";
 
-/*
-Helper function that calculates and returns the squared Euclidean distance between point1 and point2.
-
-Input:
-    double *point1: an array representing a point in dimension dim
-    double *point2: an array representing a point in dimension dim
-    int dim: the dimension of the points
-*/
 double euc_dist_sq(double *point1, double *point2, int dim) {
     double sum = 0;
     int i;

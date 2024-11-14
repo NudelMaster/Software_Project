@@ -2,6 +2,16 @@
 #define HW_FINAL_SYMNMF_H
 
 /*
+Helper function that calculates and returns the squared Euclidean distance between point1 and point2.
+
+Input:
+    double *point1: an array representing a point in dimension dim
+    double *point2: an array representing a point in dimension dim
+    int dim: the dimension of the points
+*/
+double euc_dist_sq(double *point1, double *point2, int dim);
+
+/*
 Calculates and returns the similarity matrix.
 
 Input:
