@@ -8,7 +8,7 @@
 #define err_ddg { free_matrix(a, n); free_matrix(d, n); return NULL; }
 #define err_norm { free_matrix(a, n); free_matrix(d, n); free_matrix(tmp_w, n); free_matrix(w, n); return NULL; }
 #define err_symnmf { free_matrix(w_h, n); free_matrix(h_tr, k); free_matrix(h_htr, n); free_matrix(h_htr_h, n); free_matrix(next_h, n); return NULL; }
-#define err_main { free(shape); free_matrix(points, shape[0]); printf("%s", error_msg); return 1; }
+#define err_main { free_matrix(points, shape[0]); free(shape); printf("%s", error_msg); return 1; }
 
 const double beta = 0.5;
 const double eps = 0.0001;
