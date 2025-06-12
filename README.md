@@ -10,39 +10,27 @@ SymNMF is compared with K-means clustering using the silhouette score to evaluat
 
 ## Algorithm
 
-Given a set of points (X = {x_1, x_2, ..., x_N} ⊂ ℝ^d), the SymNMF algorithm follows these steps:
+Given a set of points (X = {x_1, x_2, ..., x_N} ⊂ R^d), the SymNMF algorithm follows these steps:
 
 1. **Similarity Matrix (A)**  
    Constructed as:  
-   $$
-   a_{ij} = \begin{cases}
-   \exp(-\|x_i - x_j\|_2^2) & i \neq j \\
-   0 & i = j
-   \end{cases}
-   $$
+   a_ij = exp(-||x_i - x_j||^2) if i ≠ j, and 0 if i = j
 
 2. **Degree Matrix (D)**  
    Diagonal matrix with vertex degrees:  
-   $$
-   d_i = \sum_{j=1}^n a_{ij}
-   $$
+   d_i = sum of a_ij for j = 1 to n
 
 3. **Normalized Similarity Matrix (W)**  
    Defined as:  
-   $$
-   W = D^{-\frac{1}{2}} A D^{-\frac{1}{2}}
-   $$
+   W = D^(-1/2) * A * D^(-1/2)
 
 4. **Matrix Factorization**  
-   Find non-negative matrix \(H \in \mathbb{R}^{n \times k}\) that minimizes:  
-   $$
-   \min_{H \geq 0} \|W - H H^T\|_F^2
-   $$  
+   Find a non-negative matrix H (size n×k) that minimizes:  
+   min_{H≥0} ||W - H * H^T||_F^2  
    using an iterative update rule until convergence or max iterations.
 
 5. **Clustering**  
-   Assign each point to the cluster corresponding to the column of \(H\) with the highest value.
-
+   Assign each point to the cluster corresponding to the column of H with the highest value.
 ---
 
 ## Project Files
