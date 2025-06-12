@@ -62,7 +62,8 @@ Given a set of points \(X = \{x_1, x_2, ..., x_N\} \subset \mathbb{R}^d\), the S
 
 ## Usage
 
-### Build C Extension
+### Step 1: Build C Extension
+
 
 ```bash
 python3 setup.py build_ext --inplace
